@@ -1,0 +1,121 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "harshvardhantiwari39@gmail.com" && request.auth.token.email_verified == true));
+    }
+    
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+    
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    
+    function isValidUser(data) {
+      return hasOnlyAllowedFields(['uid', 'name', 'email', 'role', 'totalJaap', 'dailyJaap', 'lastJaapDate', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.email is string && isValidEmail(data.email) && data.email.size() < 100 &&
+             data.role in ['user', 'admin'] &&
+             data.totalJaap is number && data.totalJaap >= 0 &&
+             data.dailyJaap is number && data.dailyJaap >= 0 &&
+             data.lastJaapDate is string && data.lastJaapDate.size() <= 20 &&
+             data.createdAt is string && data.createdAt.size() <= 30;
+    }
+
+    function isValidLeaderboardEntry(data) {
+      return hasOnlyAllowedFields(['userId', 'name', 'totalJaap']) &&
+             data.userId is string && data.userId.size() > 0 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.totalJaap is number && data.totalJaap >= 0;
+    }
+    
+    function isValidDonation(data) {
+      return hasOnlyAllowedFields(['userId', 'amount', 'purpose', 'date', 'status']) &&
+             data.userId is string && data.userId.size() > 0 &&
+             data.amount is number && data.amount > 0 &&
+             data.purpose is string && data.purpose.size() > 0 && data.purpose.size() < 200 &&
+             data.date is string && data.date.size() <= 30 &&
+             data.status in ['pending', 'completed'];
+    }
+    
+    function isValidBooking(data) {
+      return hasOnlyAllowedFields(['userId', 'name', 'phone', 'checkIn', 'checkOut', 'guests', 'roomType', 'status', 'createdAt']) &&
+             data.userId is string && data.userId.size() > 0 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() < 20 &&
+             data.checkIn is string && data.checkIn.size() <= 20 &&
+             data.checkOut is string && data.checkOut.size() <= 20 &&
+             data.guests is number && data.guests > 0 && data.guests <= 20 &&
+             data.roomType is string && data.roomType.size() > 0 && data.roomType.size() < 50 &&
+             data.status in ['pending', 'approved', 'rejected'] &&
+             data.createdAt is string && data.createdAt.size() <= 30;
+    }
+    
+    function isValidSettings(data) {
+      return hasOnlyAllowedFields(['liveDarshanUrl', 'upiQrUrl', 'aartiTimings', 'notices']) &&
+             data.liveDarshanUrl is string && data.liveDarshanUrl.size() < 500 &&
+             data.upiQrUrl is string && data.upiQrUrl.size() < 500 &&
+             data.aartiTimings is string && data.aartiTimings.size() < 2000 &&
+             data.notices is string && data.notices.size() < 2000;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+    
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && 
+                    (request.resource.data.role == 'user' || isAdmin());
+      allow update: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && 
+                    request.resource.data.uid == resource.data.uid &&
+                    (request.resource.data.role == resource.data.role || isAdmin());
+    }
+
+    match /leaderboard/{userId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(userId) && isValidLeaderboardEntry(request.resource.data);
+      allow update: if isAuthenticated() && isOwner(userId) && isValidLeaderboardEntry(request.resource.data) && 
+                    request.resource.data.userId == resource.data.userId;
+    }
+    
+    match /donations/{donationId} {
+      allow read: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId) && isValidDonation(request.resource.data);
+      allow update: if isAdmin() && isValidDonation(request.resource.data);
+    }
+    
+    match /bookings/{bookingId} {
+      allow read: if isAuthenticated() && (isOwner(resource.data.userId) || isAdmin());
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId) && isValidBooking(request.resource.data) &&
+                    request.resource.data.status == 'pending';
+      allow update: if isAdmin() && isValidBooking(request.resource.data);
+    }
+    
+    match /settings/global {
+      allow read: if true; // Publicly readable settings for the app
+      allow write: if isAdmin() && isValidSettings(request.resource.data);
+    }
+  }
+}

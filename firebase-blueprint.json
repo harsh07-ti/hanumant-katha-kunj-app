@@ -1,0 +1,95 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and jaap statistics",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string", "description": "User's full name" },
+        "email": { "type": "string", "format": "email", "description": "User's email" },
+        "role": { "type": "string", "enum": ["user", "admin"], "description": "User role" },
+        "totalJaap": { "type": "number", "description": "Lifetime total jaap count" },
+        "dailyJaap": { "type": "number", "description": "Jaap count for the current day" },
+        "lastJaapDate": { "type": "string", "description": "YYYY-MM-DD string of last jaap" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "email", "role", "totalJaap", "dailyJaap", "lastJaapDate", "createdAt"]
+    },
+    "Donation": {
+      "title": "Donation",
+      "description": "User donation record",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "ID of the user who donated" },
+        "amount": { "type": "number", "description": "Donation amount" },
+        "purpose": { "type": "string", "description": "Purpose of donation (e.g., Aarti, Bhandara)" },
+        "date": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["pending", "completed"], "description": "Payment status" }
+      },
+      "required": ["userId", "amount", "purpose", "date", "status"]
+    },
+    "Booking": {
+      "title": "Booking",
+      "description": "Room booking request",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "ID of the user booking the room" },
+        "name": { "type": "string", "description": "Guest name" },
+        "phone": { "type": "string", "description": "Contact phone number" },
+        "checkIn": { "type": "string", "description": "Check-in date YYYY-MM-DD" },
+        "checkOut": { "type": "string", "description": "Check-out date YYYY-MM-DD" },
+        "guests": { "type": "number", "description": "Number of guests" },
+        "roomType": { "type": "string", "description": "Type of room requested" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"], "description": "Booking status" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name", "phone", "checkIn", "checkOut", "guests", "roomType", "status", "createdAt"]
+    },
+    "Settings": {
+      "title": "Settings",
+      "description": "Global app settings managed by admin",
+      "type": "object",
+      "properties": {
+        "liveDarshanUrl": { "type": "string", "description": "YouTube embed URL" },
+        "upiQrUrl": { "type": "string", "description": "URL to UPI QR code image" },
+        "aartiTimings": { "type": "string", "description": "Aarti timings text" },
+        "notices": { "type": "string", "description": "Important notices" }
+      },
+      "required": ["liveDarshanUrl", "upiQrUrl", "aartiTimings", "notices"]
+    },
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "description": "Public leaderboard data",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "totalJaap": { "type": "number" }
+      },
+      "required": ["userId", "name", "totalJaap"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles and jaap counts"
+    },
+    "/leaderboard/{userId}": {
+      "schema": { "$ref": "#/entities/LeaderboardEntry" },
+      "description": "Public leaderboard entries"
+    },
+    "/donations/{donationId}": {
+      "schema": { "$ref": "#/entities/Donation" },
+      "description": "Stores donation records"
+    },
+    "/bookings/{bookingId}": {
+      "schema": { "$ref": "#/entities/Booking" },
+      "description": "Stores room booking requests"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/Settings" },
+      "description": "Stores global app settings (document ID 'global')"
+    }
+  }
+}

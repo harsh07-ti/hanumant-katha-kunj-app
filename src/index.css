@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme {
+  --color-saffron: #FF9933;
+  --color-deep-saffron: #FF6600;
+  --color-gold: #D4AF37;
+  --color-cream: #FFFBF0;
+  --color-ink: #2C1810;
+  --color-app-bg: #FDF5E6;
+  --font-serif: Georgia, serif;
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+  background-color: var(--color-app-bg);
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+}
