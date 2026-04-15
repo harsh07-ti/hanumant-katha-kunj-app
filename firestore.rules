@@ -73,11 +73,12 @@ service cloud.firestore {
     }
     
     function isValidSettings(data) {
-      return hasOnlyAllowedFields(['liveDarshanUrl', 'upiQrUrl', 'aartiTimings', 'notices']) &&
+      return hasOnlyAllowedFields(['liveDarshanUrl', 'upiQrUrl', 'aartiTimings', 'notices', 'appLogoUrl']) &&
              data.liveDarshanUrl is string && data.liveDarshanUrl.size() < 500 &&
              data.upiQrUrl is string && data.upiQrUrl.size() < 500 &&
              data.aartiTimings is string && data.aartiTimings.size() < 2000 &&
-             data.notices is string && data.notices.size() < 2000;
+             data.notices is string && data.notices.size() < 2000 &&
+             (!('appLogoUrl' in data) || (data.appLogoUrl is string && data.appLogoUrl.size() < 1000));
     }
 
     // ===============================================================

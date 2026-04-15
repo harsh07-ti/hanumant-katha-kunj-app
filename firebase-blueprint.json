@@ -54,7 +54,8 @@
         "liveDarshanUrl": { "type": "string", "description": "YouTube embed URL" },
         "upiQrUrl": { "type": "string", "description": "URL to UPI QR code image" },
         "aartiTimings": { "type": "string", "description": "Aarti timings text" },
-        "notices": { "type": "string", "description": "Important notices" }
+        "notices": { "type": "string", "description": "Important notices" },
+        "appLogoUrl": { "type": "string", "description": "URL to the app logo image" }
       },
       "required": ["liveDarshanUrl", "upiQrUrl", "aartiTimings", "notices"]
     },

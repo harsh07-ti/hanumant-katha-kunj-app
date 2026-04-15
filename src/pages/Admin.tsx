@@ -6,7 +6,7 @@ import { Settings, Users, Calendar, Heart, Activity } from 'lucide-react';
 
 export default function Admin() {
   const [stats, setStats] = useState({ users: 0, jaap: 0, donations: 0, bookings: 0 });
-  const [settings, setSettings] = useState({ liveDarshanUrl: '', upiQrUrl: '', aartiTimings: '', notices: '' });
+  const [settings, setSettings] = useState({ liveDarshanUrl: '', upiQrUrl: '', aartiTimings: '', notices: '', appLogoUrl: '' });
   const [bookings, setBookings] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -121,6 +121,16 @@ export default function Admin() {
       {/* Settings Tab */}
       {activeTab === 'settings' && (
         <form onSubmit={handleSaveSettings} className="rounded-2xl bg-white p-6 shadow-sm border border-orange-100 space-y-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">App Logo Image URL</label>
+            <input
+              type="url" value={settings.appLogoUrl || ''}
+              onChange={e => setSettings({...settings, appLogoUrl: e.target.value})}
+              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-deep-saffron focus:outline-none"
+              placeholder="https://..."
+            />
+            <p className="mt-1 text-xs text-gray-500">Leave empty to use the default Om logo.</p>
+          </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Live Darshan YouTube URL</label>
             <input

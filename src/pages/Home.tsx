@@ -37,12 +37,16 @@ export default function Home() {
     }
   };
 
+  const defaultLogo = "https://storage.googleapis.com/mpx-node/temp/11388d01-e251-4043-9828-98e3b08e709a/Screenshot_2025-02-28-15-56-07-74_1c337646f29875672b5a61192b9010f9.jpg";
+  const logoToUse = settings?.appLogoUrl || defaultLogo;
+
   return (
     <div className="space-y-6 pb-6">
       {/* Welcome Banner */}
-      <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg">
-        <div className="p-6">
-          <h2 className="mb-2 text-2xl font-bold">Jai Shri Ram</h2>
+      <div className="overflow-hidden rounded-2xl bg-gradient-to-r from-saffron to-deep-saffron text-white shadow-lg">
+        <div className="p-6 text-center">
+          <img src={logoToUse} alt="App Logo" className="mx-auto mb-3 h-16 w-16 rounded-full border-2 border-gold object-cover shadow-md" referrerPolicy="no-referrer" />
+          <h2 className="mb-2 font-serif text-2xl font-bold">Jai Shri Ram</h2>
           <p className="text-orange-100">Welcome to the divine Ayodhya Temple App. Start your spiritual journey today.</p>
         </div>
       </div>
