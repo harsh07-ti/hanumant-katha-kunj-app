@@ -23,6 +23,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, isAdmin, loading } = useAuth();
   if (loading) return <div className="flex h-screen items-center justify-center text-orange-600">Loading...</div>;
   if (!user || !isAdmin) return <Navigate to="/" />;
+  if (sessionStorage.getItem('adminPinVerified') !== 'true') return <Navigate to="/profile" />;
   return <>{children}</>;
 };
 
