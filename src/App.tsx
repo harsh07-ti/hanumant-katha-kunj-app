@@ -10,6 +10,7 @@ import Booking from './pages/Booking';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
+import AdminLogin from './pages/AdminLogin';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -45,6 +46,7 @@ export default function App() {
         <Layout>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/jaap" element={<ProtectedRoute><Jaap /></ProtectedRoute>} />
             <Route path="/donate" element={<ProtectedRoute><Donate /></ProtectedRoute>} />

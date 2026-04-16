@@ -43,9 +43,11 @@ export default function TopBar() {
               <Shield size={14} /> Admin
             </Link>
           )}
-          <button onClick={handleLogout} className="rounded-full p-1 hover:bg-white/20">
-            <LogOut size={20} />
-          </button>
+          {isAdmin && (
+            <button onClick={handleLogout} className="rounded-full p-1 hover:bg-white/20">
+              <LogOut size={20} />
+            </button>
+          )}
         </div>
       )}
     </header>

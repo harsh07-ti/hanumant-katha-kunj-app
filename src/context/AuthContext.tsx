@@ -6,15 +6,17 @@ import { auth, db } from '../firebase';
 interface AuthContextType {
   user: User | null;
   isAdmin: boolean;
+  isGuest: boolean;
   loading: boolean;
   userData: any;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, isAdmin: false, loading: true, userData: null });
+const AuthContext = createContext<AuthContextType>({ user: null, isAdmin: false, isGuest: false, loading: true, userData: null });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -22,6 +24,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
+        setIsGuest(currentUser.isAnonymous);
+        
         // Check if user exists in Firestore
         const userRef = doc(db, 'users', currentUser.uid);
         const userSnap = await getDoc(userRef);
@@ -37,14 +41,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           adminStatus = currentUser.email === 'harshvardhantiwari39@gmail.com';
           data = {
             uid: currentUser.uid,
-            name: currentUser.displayName || 'Devotee',
-            email: currentUser.email || '',
-            role: adminStatus ? 'admin' : 'user',
+            name: currentUser.displayName || (currentUser.isAnonymous ? localStorage.getItem('guestName') || 'Devotee' : 'Devotee'),
+            role: adminStatus ? 'admin' : (currentUser.isAnonymous ? 'guest' : 'user'),
             totalJaap: 0,
             dailyJaap: 0,
             lastJaapDate: new Date().toISOString().split('T')[0],
             createdAt: new Date().toISOString()
           };
+          
+          if (currentUser.email) {
+            data.email = currentUser.email;
+          }
+          
           await setDoc(userRef, data);
           
           // Create leaderboard entry
@@ -60,6 +68,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setUserData(null);
         setIsAdmin(false);
+        setIsGuest(false);
       }
       setLoading(false);
     });
@@ -68,7 +77,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, loading, userData }}>
+    <AuthContext.Provider value={{ user, isAdmin, isGuest, loading, userData }}>
       {children}
     </AuthContext.Provider>
   );

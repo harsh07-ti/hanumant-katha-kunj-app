@@ -35,11 +35,11 @@ service cloud.firestore {
       return hasOnlyAllowedFields(['uid', 'name', 'email', 'role', 'totalJaap', 'dailyJaap', 'lastJaapDate', 'createdAt']) &&
              data.uid is string && data.uid.size() > 0 &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
-             data.email is string && isValidEmail(data.email) && data.email.size() < 100 &&
-             data.role in ['user', 'admin'] &&
+             (!('email' in data) || (data.email is string && isValidEmail(data.email) && data.email.size() < 100)) &&
+             data.role in ['user', 'admin', 'guest'] &&
              data.totalJaap is number && data.totalJaap >= 0 &&
              data.dailyJaap is number && data.dailyJaap >= 0 &&
-             data.lastJaapDate is string && data.lastJaapDate.size() <= 20 &&
+             (!('lastJaapDate' in data) || (data.lastJaapDate is string && data.lastJaapDate.size() <= 20)) &&
              data.createdAt is string && data.createdAt.size() <= 30;
     }
 
@@ -88,7 +88,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
       allow create: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && 
-                    (request.resource.data.role == 'user' || isAdmin());
+                    (request.resource.data.role in ['user', 'guest'] || isAdmin());
       allow update: if isAuthenticated() && isOwner(userId) && isValidUser(request.resource.data) && 
                     request.resource.data.uid == resource.data.uid &&
                     (request.resource.data.role == resource.data.role || isAdmin());
