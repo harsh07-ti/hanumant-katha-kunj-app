@@ -20,7 +20,7 @@ export default function AdminLogin() {
         throw new Error('Access Denied: Not an admin email.');
       }
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/admin');
+      navigate('/');
     } catch (err: any) {
       setError(err.message);
     } finally {

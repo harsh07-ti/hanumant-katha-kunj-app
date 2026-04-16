@@ -3,10 +3,11 @@ import { useAuth } from '../context/AuthContext';
 import { collection, query, where, onSnapshot, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { format } from 'date-fns';
-import { Trophy, History, Heart } from 'lucide-react';
+import { Trophy, History, Heart, Shield } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Profile() {
-  const { user, userData } = useAuth();
+  const { user, userData, isAdmin } = useAuth();
   const [donations, setDonations] = useState<any[]>([]);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
@@ -43,7 +44,16 @@ export default function Profile() {
   return (
     <div className="mx-auto max-w-md space-y-6 pb-6">
       {/* Profile Card */}
-      <div className="rounded-2xl bg-white p-6 text-center shadow-sm border border-orange-100">
+      <div className="rounded-2xl bg-white p-6 text-center shadow-sm border border-orange-100 relative">
+        {isAdmin && (
+          <Link 
+            to="/admin" 
+            className="absolute top-4 right-4 flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-xs font-bold text-white shadow-md transition-transform hover:scale-105 active:scale-95"
+          >
+            <Shield size={14} />
+            Admin Panel 🔐
+          </Link>
+        )}
         <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-orange-100 text-3xl font-bold text-orange-600">
           {userData?.name?.charAt(0) || 'D'}
         </div>

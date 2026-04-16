@@ -39,11 +39,6 @@ export default function TopBar() {
       {user && (
         <div className="flex items-center gap-3">
           {isAdmin && (
-            <Link to="/admin" className="flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 text-xs font-medium backdrop-blur-sm">
-              <Shield size={14} /> Admin
-            </Link>
-          )}
-          {isAdmin && (
             <button onClick={handleLogout} className="rounded-full p-1 hover:bg-white/20">
               <LogOut size={20} />
             </button>
